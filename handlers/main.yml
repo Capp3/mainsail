@@ -1,0 +1,12 @@
+---
+- name: Reload Klipper Service
+  ansible.builtin.systemd:
+    name: klipper.service
+    enabled: true
+    state: reloaded
+
+- name: Reload Moonraker Service
+  ansible.builtin.systemd:
+    name: moonraker.service
+    enabled: true
+    state: reloaded
