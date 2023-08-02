@@ -1,0 +1,15 @@
+- name: Clone klipper config
+  ansible.builtin.git:
+    repo: {{ klipper_config_git }}
+    dest: /home/{{ klipper_user }}/klipper_config
+    update: yes
+  when: klipper_config_git is defined
+
+- name: Create Klipper Config symbolic link
+  ansible.builtin.file:
+    src: /home/{{ klipper_user }}/klipper_config/
+    dest: /home/{{ klipper_user }}/printer_data/printer.cfg
+    owner: {{ klipper_user }}
+    group: {{ klipper_user }}
+    state: link
+  when: klipper_config_git is defined

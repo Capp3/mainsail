@@ -38,86 +38,43 @@
 - name: Clone klipper
   ansible.builtin.git:
     repo: https://github.com/KevinOConnor/klipper.git
-    dest: /home/server/klipper
+    dest: /home/{{ klipper_user }}/klipper
     update: yes
 
-- name: Create data directory
-  ansible.builtin.file:
-    path: /home/server/printer_data/
-    state: directory
-    mode: '0775'
-    owner: server
-    group: server
-
-- name: Create config directory
-  ansible.builtin.file:
-    path: /home/server/printer_data/config
-    state: directory
-    mode: '0775'
-    owner: server
-    group: server
-
-- name: Create log directory
-  ansible.builtin.file:
-    path: /home/server/printer_data/logs
-    state: directory
-    mode: '0775'
-    owner: server
-    group: server
-
-- name: Create gcode directory
-  ansible.builtin.file:
-    path: /home/server/printer_data/gcodes
-    state: directory
-    mode: '0775'
-    owner: server
-    group: server
-
-- name: Create systemd directory
-  ansible.builtin.file:
-    path: /home/server/printer_data/systemd
-    state: directory
-    mode: '0775'
-    owner: server
-    group: server
-
-- name: Create comms directory
-  ansible.builtin.file:
-    path: /home/server/printer_data/comms
-    state: directory
-    mode: '0775'
-    owner: server
-    group: server
-
-- name: Clone klipper config
+- name: Clone Moonraker
   ansible.builtin.git:
-    repo: https://github.com/Capp3/klipper_config.git
-    dest: /home/server/klipper_config
-    version: main
+    repo: https://github.com/Arksine/moonraker.git
+    dest: /home/server/moonraker
     update: yes
 
-- name: Create Klipper Config symbolic link
-  ansible.builtin.file:
-    src: /home/server/klipper_config/tevo_sbase.cfg
-    dest: /home/server/printer_data/printer.cfg
-    owner: server
-    group: server
-    state: link
+- name: Create necessary directories
+  file:
+    path: "/home/{{ klipper_user }}/printer_data/{{ item }}"
+    state: directory
+    mode: '0775'
+    owner: "{{ klipper_user }}"
+    group: "{{ klipper_user }}"
+  loop:
+    - config
+    - logs
+    - gcodes
+    - systemd
+    - comms
 
 - name: Install klippy into the specified (virtualenv), using Python 3
   ansible.builtin.pip:
     name: klipper
-    virtualenv: /home/server/klippy-env
-    virtualenv_command: virtualenv-3
-    requirements: /home/server/klipper/scripts/klippy-requirements.txt
+    virtualenv: /home/{{ klipper_user }}/klippy-env
+    virtualenv_command: python3
+    requirements: /home/{{ klipper_user }}/klipper/scripts/klippy-requirements.txt
 
-- name: Copy Klipper Service file
-  ansible.builtin.copy:
-    src: files/klipper.service
+- name: Copy Klipper Service File from Template
+  ansible.builtin.template:
+    src: klipper.service.j2  # Use the template file name with .j2 extension
     dest: /etc/systemd/system/klipper.service
     owner: root
     group: root
-    mode: '0755'
+    mode: '0644'
 
 - name: Copy Klipper Env file
   ansible.builtin.copy:
@@ -133,11 +90,7 @@
     enabled: true
     state: started
 
-- name: Clone Moonraker
-  ansible.builtin.git:
-    repo: https://github.com/Arksine/moonraker.git
-    dest: /home/server/moonraker
-    update: yes
+
 
 - name: Install Moonraker into the specified (virtualenv), using Python 3
   ansible.builtin.pip:
@@ -237,3 +190,4 @@
     src: https://github.com/mainsail-crew/mainsail/releases/latest/download/mainsail.zip
     dest: /home/server/mainsail
     remote_src: yes
+

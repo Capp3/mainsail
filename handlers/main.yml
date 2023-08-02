@@ -10,3 +10,10 @@
     name: moonraker.service
     enabled: true
     state: reloaded
+
+- name: Update klipper config
+  ansible.builtin.git:
+    repo: {{ klipper_config_git }}
+    dest: /home/{{ klipper_user }}/klipper_config
+    update: yes
+  when: klipper_config_git is defined
