@@ -20,15 +20,19 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # needed for progressive mode to work
+    
       - name: Check out the codebase.
         uses: actions/checkout@v2
         with:
-        path: 'capp3.mainsail'
+          path: 'capp3.mainsail'
 
       - name: Set up Python 3.
         uses: actions/setup-python@v2
         with:
-        python-version: '3.x'
+          python-version: '3.x'
 
       - name: Install Ansible.
         run: pip3 install ansible-core
