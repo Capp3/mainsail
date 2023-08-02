@@ -396,3 +396,10 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Mac OS Annoyance
+.DS_store
+.DS_Store
+
+# Don't Sync Obsidian Settings
+.obsidian/
