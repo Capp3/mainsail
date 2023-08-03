@@ -4,6 +4,44 @@ klipper_user: server
 ## Configuration Files
 ## If you have your configuration as a git repository enter it here
 klipper_config_git: https://github.com/Capp3/klipper_config.git
+
 ## Make sure you have your Git authorizations setup!
 ## What is the file name of your config? It will be sym-linked to printer.cfg
 klipper_config_file: tevo_sbase.cfg
+
+file_directories:
+  - config
+  - logs
+  - gcodes
+  - systemd
+  - comms
+
+apt_packages:
+  - python3-virtualenv
+  - python3-libgpiod
+  - python3-dev
+  - libffi-dev
+  - build-essential
+  - libncurses-dev
+  - avrdude
+  - gcc-avr
+  - binutils-avr
+  - avr-libc
+  - stm32flash
+  - dfu-util
+  - libnewlib-arm-none-eabi
+  - gcc-arm-none-eabi
+  - binutils-arm-none-eabi
+  - libusb-1.0-0
+  - libusb-1.0-0-dev
+  - libopenjp2-7
+  - curl
+  - libcurl4-openssl-dev
+  - libssl-dev
+  - liblmdb-dev
+  - libsodium-dev
+  - zlib1g-dev
+  - libjpeg-dev
+  - packagekit
+  - wireless-tools
+  - nginx ## Installing NGINX as part of this package, may cause problems if using another NGINX Ansible Role

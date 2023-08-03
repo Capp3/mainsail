@@ -1,40 +1,11 @@
+#### Install System Dependencies
 - name: Install Required Packages
   ansible.builtin.apt:
     name: "{{ item }}"
     state: present
-  loop:
-    - python3-virtualenv
-    - python3-dev
-    - python3-dev
-    - libffi-dev
-    - build-essential
-    - libncurses-dev
-    - avrdude
-    - gcc-avr
-    - binutils-avr
-    - avr-libc
-    - stm32flash
-    - dfu-util
-    - libnewlib-arm-none-eabi
-    - gcc-arm-none-eabi
-    - binutils-arm-none-eabi
-    - libusb-1.0-0
-    - libusb-1.0-0-dev
-    - python3-virtualenv
-    - python3-dev
-    - libopenjp2-7
-    - python3-libgpiod
-    - curl
-    - libcurl4-openssl-dev
-    - libssl-dev
-    - liblmdb-dev
-    - libsodium-dev
-    - zlib1g-dev
-    - libjpeg-dev
-    - packagekit
-    - wireless-tools
-    - nginx ## Installing NGINX as part of this package, may cause problems if using another NGINX Ansible Role
+  loop: "{{ apt_packages }}"
 
+#### Clone Gits
 - name: Clone klipper
   ansible.builtin.git:
     repo: https://github.com/KevinOConnor/klipper.git
@@ -47,6 +18,7 @@
     dest: /home/server/moonraker
     update: yes
 
+#### File Actions
 - name: Create necessary directories
   file:
     path: "/home/{{ klipper_user }}/printer_data/{{ item }}"
@@ -54,12 +26,48 @@
     mode: '0775'
     owner: "{{ klipper_user }}"
     group: "{{ klipper_user }}"
-  loop:
-    - config
-    - logs
-    - gcodes
-    - systemd
-    - comms
+  loop: "{{ file_directories }}"
+
+#### Templating
+- name: Create Klipper Service File from Template
+  ansible.builtin.template:
+    src: klipper.service.j2
+    dest: /etc/systemd/system/klipper.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create Klipper Env file
+  ansible.builtin.template:
+    src: klipper.env.j2
+    dest: /home/{{ klipper_user }}/printer_data/systemd/klipper.env
+    owner: "{{ klipper_user }}"
+    group: "{{ klipper_user }}"
+    mode: '0755'
+
+- name: Create Moonraker config file
+  ansible.builtin.copy:
+    src: moonraker.conf.j2
+    dest: /home/{{ klipper_user }}/printer_data/config/moonraker.conf
+    owner: "{{ klipper_user }}"
+    group: "{{ klipper_user }}"
+    mode: '0755'
+
+- name: Create Moonraker service file
+  ansible.builtin.copy:
+    src: files/moonraker.service
+    dest: /etc/systemd/system/moonraker.service
+    owner: "{{ klipper_user }}"
+    group: "{{ klipper_user }}"
+    mode: '0755'
+
+- name: Create Moonraker env file
+  ansible.builtin.copy:
+    src: files/moonraker.file
+    dest: /home/{{ klipper_user }}/printer_data/systemd/moonraker.env
+    owner: "{{ klipper_user }}"
+    group: "{{ klipper_user }}"
+    mode: '0755'
 
 - name: Install klippy into the specified (virtualenv), using Python 3
   ansible.builtin.pip:
@@ -68,60 +76,20 @@
     virtualenv_command: python3
     requirements: /home/{{ klipper_user }}/klipper/scripts/klippy-requirements.txt
 
-- name: Copy Klipper Service File from Template
-  ansible.builtin.template:
-    src: klipper.service.j2  # Use the template file name with .j2 extension
-    dest: /etc/systemd/system/klipper.service
-    owner: root
-    group: root
-    mode: '0644'
-
-- name: Copy Klipper Env file
-  ansible.builtin.copy:
-    src: files/klipper.file
-    dest: /home/server/printer_data/systemd/klipper.env
-    owner: server
-    group: server
-    mode: '0755'
-
 - name: Enable Klipper Service
   ansible.builtin.systemd:
     name: klipper.service
     enabled: true
     state: started
 
-
-
 - name: Install Moonraker into the specified (virtualenv), using Python 3
   ansible.builtin.pip:
     name: moonraker
-    virtualenv: /home/server/moonraker-env
-    virtualenv_command: virtualenv-3
-    requirements: /home/server/moonraker/scripts/moonraker-requirements.txt
+    virtualenv: /home/{{ klipper_user }}/moonraker-env
+    virtualenv_command: python3
+    requirements: /home/{{ klipper_user }}/moonraker/scripts/moonraker-requirements.txt
 
-- name: Copy Moonraker config file
-  ansible.builtin.copy:
-    src: files/moonraker.conf
-    dest: /home/server/printer_data/config/moonraker.conf
-    owner: server
-    group: server
-    mode: '0755'
 
-- name: Copy Moonraker service file
-  ansible.builtin.copy:
-    src: files/moonraker.service
-    dest: /etc/systemd/system/moonraker.service
-    owner: root
-    group: root
-    mode: '0755'
-
-- name: Copy Moonraker env file
-  ansible.builtin.copy:
-    src: files/moonraker.file
-    dest: /home/server/printer_data/systemd/moonraker.env
-    owner: server
-    group: server
-    mode: '0755'
 
 - name: Enable Moonraker Service
   ansible.builtin.systemd:

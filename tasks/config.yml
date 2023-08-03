@@ -1,3 +1,8 @@
+- name: Confirm no existing printer config
+  ansible.builtin.file:
+    path: /home/{{ klipper_user }}/printer_data/printer.cfg
+    state: absent
+
 - name: Clone klipper config
   ansible.builtin.git:
     repo: {{ klipper_config_git }}
