@@ -10,23 +10,28 @@
   ansible.builtin.git:
     repo: https://github.com/KevinOConnor/klipper.git
     dest: /home/{{ klipper_user }}/klipper
-    update: yes
+    update: true
 
 - name: Clone Moonraker
   ansible.builtin.git:
     repo: https://github.com/Arksine/moonraker.git
     dest: /home/server/moonraker
-    update: yes
+    update: true
 
 #### File Actions
 - name: Create necessary directories
-  file:
+  ansible.builtin.file:
     path: "/home/{{ klipper_user }}/printer_data/{{ item }}"
     state: directory
     mode: '0775'
     owner: "{{ klipper_user }}"
     group: "{{ klipper_user }}"
   loop: "{{ file_directories }}"
+
+- name: Remove default Nginx Site
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
 
 #### Templating
 - name: Create Klipper Service File from Template
@@ -46,7 +51,7 @@
     mode: '0755'
 
 - name: Create Moonraker config file
-  ansible.builtin.copy:
+  ansible.builtin.template:
     src: moonraker.conf.j2
     dest: /home/{{ klipper_user }}/printer_data/config/moonraker.conf
     owner: "{{ klipper_user }}"
@@ -54,69 +59,21 @@
     mode: '0755'
 
 - name: Create Moonraker service file
-  ansible.builtin.copy:
-    src: files/moonraker.service
+  ansible.builtin.template:
+    src: moonraker.service.j2
     dest: /etc/systemd/system/moonraker.service
     owner: "{{ klipper_user }}"
     group: "{{ klipper_user }}"
     mode: '0755'
 
 - name: Create Moonraker env file
-  ansible.builtin.copy:
-    src: files/moonraker.file
+  ansible.builtin.template:
+    src: moonraker.env.j2
     dest: /home/{{ klipper_user }}/printer_data/systemd/moonraker.env
     owner: "{{ klipper_user }}"
     group: "{{ klipper_user }}"
     mode: '0755'
 
-- name: Install klippy into the specified (virtualenv), using Python 3
-  ansible.builtin.pip:
-    name: klipper
-    virtualenv: /home/{{ klipper_user }}/klippy-env
-    virtualenv_command: python3
-    requirements: /home/{{ klipper_user }}/klipper/scripts/klippy-requirements.txt
-
-- name: Enable Klipper Service
-  ansible.builtin.systemd:
-    name: klipper.service
-    enabled: true
-    state: started
-
-- name: Install Moonraker into the specified (virtualenv), using Python 3
-  ansible.builtin.pip:
-    name: moonraker
-    virtualenv: /home/{{ klipper_user }}/moonraker-env
-    virtualenv_command: python3
-    requirements: /home/{{ klipper_user }}/moonraker/scripts/moonraker-requirements.txt
-
-
-
-- name: Enable Moonraker Service
-  ansible.builtin.systemd:
-    name: moonraker.service
-    enabled: true
-    state: started
-
-- name: Execute Moonraker Script
-  ansible.builtin.shell: /home/server/moonraker/scripts/set-policykit-rules.sh >> moonpolicylog.txt
-  args:
-    chdir: /home/server
-
-- name: Copy Mainsail Nginx file
-  ansible.builtin.copy:
-    src: files/mainsail.nginx
-    dest: /etc/nginx/sites-available/mainsail
-    owner: root
-    group: root
-    mode: '0755'
-
-- name: Copy Mainsail Upstreams file
-  ansible.builtin.copy:
-    src: files/moonraker.upstreams
-    dest: /etc/nginx/conf.d/upstreams.conf
-    owner: root
-    group: root
-    mode: '0755'
 
 - name: Copy Mainsail Vars file
   ansible.builtin.copy:
@@ -134,11 +91,14 @@
     owner: server
     group: server
 
-- name: Remove default Nginx Site
-  ansible.builtin.file:
-    path: /etc/nginx/sites-enabled/default
-    state: absent
-
+- name: Copy Mainsail Nginx file
+  ansible.builtin.copy:
+    src: files/mainsail.nginx
+    dest: /etc/nginx/sites-available/mainsail
+    owner: root
+    group: root
+    mode: '0755'
+  
 - name: Create Klipper Config symbolic link
   ansible.builtin.file:
     src: /etc/nginx/sites-available/mainsail
@@ -147,15 +107,50 @@
     group: root
     state: link
 
+##### Virtual Environments
+- name: Install klippy into the specified (virtualenv), using Python 3
+  ansible.builtin.pip:
+    name: klipper
+    virtualenv: /home/{{ klipper_user }}/klippy-env
+    virtualenv_command: python3
+    requirements: /home/{{ klipper_user }}/klipper/scripts/klippy-requirements.txt
+
+- name: Install Moonraker into the specified (virtualenv), using Python 3
+  ansible.builtin.pip:
+    name: moonraker
+    virtualenv: /home/{{ klipper_user }}/moonraker-env
+    virtualenv_command: python3
+    requirements: /home/{{ klipper_user }}/moonraker/scripts/moonraker-requirements.txt
+
+##### Services
+- name: Enable Klipper Service
+  ansible.builtin.systemd:
+    name: klipper.service
+    enabled: true
+    state: started
+
+- name: Copy Mainsail Upstreams file
+  ansible.builtin.copy:
+    src: files/moonraker.upstreams
+    dest: /etc/nginx/conf.d/upstreams.conf
+    owner: root
+    group: root
+    mode: '0755'
+
 - name: Enable Moonraker Service
   ansible.builtin.systemd:
     name: moonraker.service
     enabled: true
-    state: reloaded
+    state: started
 
-- name: Download & Unarchive Mainsail 
+##### Scripts
+- name: Execute Moonraker Script
+  ansible.builtin.shell: /home/{{ klipper_user }}/moonraker/scripts/set-policykit-rules.sh >> moonpolicylog.txt
+  args:
+    chdir: /home/{{ klipper_user }}
+
+- name: Download & Unarchive Mainsail
   ansible.builtin.unarchive:
     src: https://github.com/mainsail-crew/mainsail/releases/latest/download/mainsail.zip
     dest: /home/server/mainsail
-    remote_src: yes
-
+    remote_src: true
