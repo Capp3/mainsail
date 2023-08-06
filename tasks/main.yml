@@ -98,7 +98,7 @@
     owner: root
     group: root
     mode: '0755'
-  
+
 - name: Create Klipper Config symbolic link
   ansible.builtin.file:
     src: /etc/nginx/sites-available/mainsail
