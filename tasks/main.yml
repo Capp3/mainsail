@@ -116,16 +116,16 @@
 - name: Install klippy into the specified (virtualenv), using Python 3
   ansible.builtin.pip:
     name: klipper
-    virtualenv: /home/{{ klipper_user }}/klippy-env
+    virtualenv: /home/"{{ klipper_user }}"/klippy-env
     virtualenv_command: python3
-    requirements: /home/{{ klipper_user }}/klipper/scripts/klippy-requirements.txt
+    requirements: /home/"{{ klipper_user }}"/klipper/scripts/klippy-requirements.txt
 
 - name: Install Moonraker into the specified (virtualenv), using Python 3
   ansible.builtin.pip:
     name: moonraker
-    virtualenv: /home/{{ klipper_user }}/moonraker-env
+    virtualenv: /home/"{{ klipper_user }}"/moonraker-env
     virtualenv_command: python3
-    requirements: /home/{{ klipper_user }}/moonraker/scripts/moonraker-requirements.txt
+    requirements: /home/"{{ klipper_user }}"/moonraker/scripts/moonraker-requirements.txt
 
 ##### Services
 - name: Enable Klipper Service
@@ -150,9 +150,9 @@
 
 ##### Scripts
 - name: Execute Moonraker Script
-  ansible.builtin.shell: /home/{{ klipper_user }}/moonraker/scripts/set-policykit-rules.sh >> moonpolicylog.txt
+  ansible.builtin.shell: /home/"{{ klipper_user }}"/moonraker/scripts/set-policykit-rules.sh >> moonpolicylog.txt
   args:
-    chdir: /home/{{ klipper_user }}
+    chdir: /home/"{{ klipper_user }}""
 
 - name: Download & Unarchive Mainsail
   ansible.builtin.unarchive:

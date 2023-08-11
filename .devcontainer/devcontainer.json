@@ -12,6 +12,10 @@
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "pip3 install ansible-lint",
+	"mounts": [
+		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
+		"source=devcontainer-bashhistory,target=/commandhistory,type=volume"
+	],
 
 	"customizations": {
 		"vscode": {
@@ -19,9 +23,11 @@
 			"ms-python.python",
 			"ms-python.vscode-pylance",
 			"redhat.ansible"
-		  ],
-		}
+
 	}
+
+
+	   }
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
