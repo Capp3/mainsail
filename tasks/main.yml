@@ -18,6 +18,11 @@
     dest: /home/server/moonraker
     update: true
 
+- name: Clone Config Git, if defined
+  ansible.builtin.include_tasks:
+    file: config.yml
+  when: klipper_config_git is defined
+
 #### File Actions
 - name: Create necessary directories
   ansible.builtin.file:
