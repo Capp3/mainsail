@@ -1,8 +1,14 @@
-FROM ubuntu:latest
+FROM python:3.11.4-bookworm
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 ARG USERNAME=server
+
+RUN groupadd --gid 1000 $USERNAME && \
+    useradd --uid 1000 --gid 1000 -m $USERNAME
+## Make sure to reflect new user in PATH
+ENV PATH="/home/${USERNAME}/.local/bin:${PATH}"
+USER $USERNAME
 
 # Used to persist bash history as per https://code.visualstudio.com/remote/advancedcontainers/persist-bash-history
 RUN SNIPPET="export PROMPT_COMMAND='history -a' && export HISTFILE=/commandhistory/.bash_history" \

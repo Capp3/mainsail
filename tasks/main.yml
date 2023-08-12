@@ -1,3 +1,4 @@
+---
 #### Install System Dependencies
 - name: Install Required Packages
   ansible.builtin.apt:
@@ -9,7 +10,7 @@
 - name: Clone klipper
   ansible.builtin.git:
     repo: https://github.com/KevinOConnor/klipper.git
-    dest: /home/{{ klipper_user }}/klipper
+    dest: /home/"{{ klipper_user }}"/klipper
     update: true
 
 - name: Clone Moonraker
@@ -26,7 +27,7 @@
 #### File Actions
 - name: Create necessary directories
   ansible.builtin.file:
-    path: "/home/{{ klipper_user }}/printer_data/{{ item }}"
+    path: "/home/"{{ klipper_user }}"/printer_data/"{{ item }}"
     state: directory
     mode: '0775'
     owner: "{{ klipper_user }}"
@@ -50,7 +51,7 @@
 - name: Create Klipper Env file
   ansible.builtin.template:
     src: klipper.env.j2
-    dest: /home/{{ klipper_user }}/printer_data/systemd/klipper.env
+    dest: /home/"{{ klipper_user }}"/printer_data/systemd/klipper.env
     owner: "{{ klipper_user }}"
     group: "{{ klipper_user }}"
     mode: '0755'
