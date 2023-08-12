@@ -30,9 +30,10 @@
 			"ms-azuretools.vscode-docker"
 		]
 	}
-
-
 	   },
+
+	   "workspaceMount": "source=${localWorkspaceFolder}/,target=/home/server,type=bind,consistency=cached", 
+	   "workspaceFolder": "/home/server",
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
