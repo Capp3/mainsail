@@ -12,7 +12,7 @@ RUN groupadd --gid 1000 $USERNAME && \
 ENV PATH="/home/${USERNAME}/.local/bin:${PATH}"
 
 RUN apt-get update && \
-  apt-get install -y gcc python-dev libkrb5-dev && \
+  apt-get install -y gcc libkrb5-dev && \
   apt-get install python3-pip -y && \
   pip3 install --upgrade pip && \
   pip3 install --upgrade virtualenv && \

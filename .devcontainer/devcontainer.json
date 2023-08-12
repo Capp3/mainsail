@@ -16,8 +16,7 @@
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "pip3 install ansible-lint",
 	"mounts": [
-		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind",
-		"source=devcontainer-bashhistory,target=/commandhistory,type=volume"
+		"source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
 	],
 
 	"customizations": {
