@@ -10,13 +10,15 @@
 - name: Clone klipper
   ansible.builtin.git:
     repo: https://github.com/KevinOConnor/klipper.git
+    version: master
     dest: /home/"{{ klipper_user }}"/klipper
     update: true
 
 - name: Clone Moonraker
   ansible.builtin.git:
     repo: https://github.com/Arksine/moonraker.git
-    dest: /home/server/moonraker
+    dest: /home/"{{ klipper_user }}"/moonraker
+    version: master
     update: true
 
 - name: Clone Config Git, if defined
@@ -27,7 +29,7 @@
 #### File Actions
 - name: Create necessary directories
   ansible.builtin.file:
-    path: "/home/"{{ klipper_user }}"/printer_data/"{{ item }}"
+    path: /home/"{{ klipper_user }}"/printer_data/"{{ item }}"
     state: directory
     mode: '0775'
     owner: "{{ klipper_user }}"
@@ -94,8 +96,8 @@
     path: /home/server/mainsail
     state: directory
     mode: '0775'
-    owner: server
-    group: server
+    owner: "{{ klipper_user }}"
+    group: "{{ klipper_user }}"
 
 - name: Copy Mainsail Nginx file
   ansible.builtin.copy:
@@ -153,10 +155,11 @@
 - name: Execute Moonraker Script
   ansible.builtin.shell: /home/"{{ klipper_user }}"/moonraker/scripts/set-policykit-rules.sh >> moonpolicylog.txt
   args:
-    chdir: /home/"{{ klipper_user }}""
+    chdir: /home/"{{ klipper_user }}"
+  changed_when: moonpolicylog.txt != 0
 
 - name: Download & Unarchive Mainsail
   ansible.builtin.unarchive:
     src: https://github.com/mainsail-crew/mainsail/releases/latest/download/mainsail.zip
-    dest: /home/server/mainsail
+    dest: /home/"{{ klipper_user }}"/mainsail
     remote_src: true

@@ -7,12 +7,13 @@
   ansible.builtin.git:
     repo: "{{ klipper_config_git }}"
     dest: /home/"{{ klipper_user }}"/klipper_config
+    version: "{{ klipper_config_version }}"
     update: true
 
 - name: Create Klipper Config symbolic link
   ansible.builtin.file:
-    src: /home/"{{ klipper_user }}"/klipper_config/
+    src: /home/"{{ klipper_user }}"/klipper_config/"{{ klipper_config_file }}"
     dest: /home/"{{ klipper_user }}/"printer_data/printer.cfg
     owner: "{{ klipper_user }}"
     group: "{{ klipper_user }}"
-    state: true
+    state: link

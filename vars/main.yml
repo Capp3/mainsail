@@ -6,3 +6,5 @@ klipper_user: server
 klipper_config_git:
 
 klipper_config_file:
+
+klipper_config_version:
