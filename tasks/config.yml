@@ -10,6 +10,7 @@
     dest: /home/"{{ klipper_user }}"/klipper_config
     version: "{{ klipper_config_version }}"
     update: true
+    clone: true
 
 - name: Create Klipper Config symbolic link
   ansible.builtin.file:

@@ -13,6 +13,7 @@
     version: master
     dest: /home/"{{ klipper_user }}"/klipper
     update: true
+    clone: true
 
 - name: Clone Moonraker
   ansible.builtin.git:
@@ -20,6 +21,7 @@
     dest: /home/"{{ klipper_user }}"/moonraker
     version: master
     update: true
+    clone: true
 
 - name: Clone Config Git, if defined
   ansible.builtin.include_tasks:
