@@ -1,3 +1,14 @@
+## This is the system user for Ubuntu
+klipper_user: server
+
+## Configuration Files
+## If you have your configuration as a git repository enter it here
+klipper_config_git:
+
+klipper_config_file:
+
+klipper_config_version: 
+
 file_directories:
   - config
   - logs
